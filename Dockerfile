@@ -14,13 +14,6 @@ COPY requirements/base.txt requirements/base.txt
 RUN pip install --upgrade pip && \
     pip install --prefix=/install -r requirements/base.txt
 
-# Download spaCy English model
-RUN /install/bin/python -m spacy download en_core_web_sm
-
-# Pre-download the sentence-transformer model into the image
-RUN /install/bin/python -c \
-    "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2', device='cpu')"
-
 # ============================================================
 # Runtime stage — lean final image
 # ============================================================
