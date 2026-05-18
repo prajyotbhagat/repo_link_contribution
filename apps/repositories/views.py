@@ -130,7 +130,7 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'])
     def recommendations(self, request):
-        query = request.query_params.get('query', '')
+        query = request.query_params.get('query', '').strip()
         language = request.query_params.get('language')
         limit = min(int(request.query_params.get('limit', 50)), 500)
 
@@ -139,10 +139,14 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         if language:
             repos = repos.filter(language__iexact=language)
 
-        repos = list(repos)
-
         api_key = os.environ.get("GEMINI_API_KEY")
+
+        # Robust check to see if database has vector embeddings populated
+        has_embeddings = False
         if query and api_key:
+            has_embeddings = repos.exclude(embedding__isnull=True).exclude(embedding=[]).exists()
+
+        if query and api_key and has_embeddings:
             genai.configure(api_key=api_key)
             try:
                 result = genai.embed_content(
@@ -152,8 +156,9 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
                 )
                 query_embedding = result['embedding']
 
+                repos_list = list(repos)
                 scored_repos = []
-                for repo in repos:
+                for repo in repos_list:
                     if repo.embedding:
                         sim = cosine_similarity(query_embedding, repo.embedding)
                         scored_repos.append((sim, repo))
@@ -161,15 +166,29 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
                         scored_repos.append((-1.0, repo))
 
                 scored_repos.sort(key=lambda x: x[0], reverse=True)
-                repos = [repo for sim, repo in scored_repos][:limit]
+                repos_res = [repo for sim, repo in scored_repos][:limit]
+                
+                serializer = self.get_serializer(repos_res, many=True)
+                return Response(serializer.data)
             except Exception as e:
                 print(f"Error generating query embedding: {e}")
-                repos.sort(key=lambda x: x.final_score, reverse=True)
-                repos = repos[:limit]
-        else:
-            repos.sort(key=lambda x: x.final_score, reverse=True)
-            repos = repos[:limit]
 
+        # --- FALLBACK TEXT SEARCH ---
+        # If semantic search is unavailable, unsupported, or fails, run standard SQL keyword matching
+        if query:
+            from django.db.models import Q
+            words = query.split()
+            q_objects = Q()
+            for word in words:
+                q_objects &= (
+                    Q(name__icontains=word) |
+                    Q(description__icontains=word) |
+                    Q(language__icontains=word) |
+                    Q(owner__icontains=word)
+                )
+            repos = repos.filter(q_objects)
+
+        repos = repos.order_by('-final_score')[:limit]
         serializer = self.get_serializer(repos, many=True)
         return Response(serializer.data)
 
