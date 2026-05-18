@@ -3,21 +3,8 @@ from datetime import datetime, timezone
 from apps.repositories.models import Repository, Issue
 from apps.analytics.nlp import analyze_readme_quality
 
-# Lazy singleton — load the model on FIRST USE inside the worker process,
-# not at module import time. This avoids the CUDA fork error with Celery prefork.
-_embedding_model = None
-
-def get_embedding_model():
-    global _embedding_model
-    if _embedding_model is None:
-        try:
-            from sentence_transformers import SentenceTransformer
-            # Force CPU to avoid CUDA fork issues with Celery prefork.
-            # The model is small enough that CPU inference is fast.
-            _embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
-        except ImportError:
-            _embedding_model = False  # Mark as unavailable so we don't retry
-    return _embedding_model if _embedding_model else None
+import os
+import google.generativeai as genai
 
 class AnalyticsService:
     @staticmethod
@@ -88,12 +75,22 @@ class AnalyticsService:
             repo.maintenance_score * 0.10
         )
         
-        # Generate Vector Embedding (lazy-loaded to be CUDA-fork safe)
-        model = get_embedding_model()
-        if model:
-            topics_str = " ".join(repo.topics) if repo.topics else ""
-            readme_snippet = (repo.readme or "")[:1000]
-            text_to_embed = f"{repo.name}. {repo.description}. Topics: {topics_str}. README: {readme_snippet}"
-            repo.embedding = model.encode(text_to_embed).tolist()
+        # Generate Vector Embedding using Gemini API
+        try:
+            api_key = os.environ.get("GEMINI_API_KEY")
+            if api_key:
+                genai.configure(api_key=api_key)
+                topics_str = " ".join(repo.topics) if repo.topics else ""
+                readme_snippet = (repo.readme or "")[:1000]
+                text_to_embed = f"{repo.name}. {repo.description}. Topics: {topics_str}. README: {readme_snippet}"
+                
+                result = genai.embed_content(
+                    model="models/text-embedding-004",
+                    content=text_to_embed,
+                    task_type="retrieval_document"
+                )
+                repo.embedding = result['embedding']
+        except Exception as e:
+            print(f"Error generating embedding for {repo.name}: {e}")
 
         repo.save()

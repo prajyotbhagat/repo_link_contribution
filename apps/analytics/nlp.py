@@ -1,14 +1,8 @@
-import spacy
-from collections import Counter
+import os
 import re
 import nltk
 from nltk.tokenize import word_tokenize
-
-# Load spaCy model
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    print("Warning: spacy en_core_web_sm not found.")
+import google.generativeai as genai
 
 def analyze_readme_quality(readme_text):
     if not readme_text:
@@ -47,11 +41,17 @@ def extract_topics(readme_text):
     if not readme_text:
         return []
     
-    # Basic keyword extraction using spaCy
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return []
+        
     try:
-        doc = nlp(readme_text[:5000]) # Limit to 5000 chars for speed
-        keywords = [token.lemma_.lower() for token in doc if token.is_alpha and not token.is_stop and len(token) > 2]
-        common = Counter(keywords).most_common(5)
-        return [k[0] for k in common]
-    except Exception:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = "Extract up to 5 key technical topics or keywords from the following README snippet. Return only the topics separated by commas, no other text:\n\n" + readme_text[:3000]
+        response = model.generate_content(prompt)
+        topics = [t.strip().lower() for t in response.text.split(',') if t.strip()]
+        return topics[:5]
+    except Exception as e:
+        print(f"Error extracting topics: {e}")
         return []

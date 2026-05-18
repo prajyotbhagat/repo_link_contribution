@@ -11,20 +11,8 @@ from .serializers import RepositorySerializer
 
 User = get_user_model()
 
-# Lazy singleton — avoids loading PyTorch/CUDA at import time
-_embedding_model = None
-
-
-def get_embedding_model():
-    global _embedding_model
-    if _embedding_model is None:
-        try:
-            from sentence_transformers import SentenceTransformer
-            # Force CPU to avoid CUDA fork issues
-            _embedding_model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
-        except ImportError:
-            _embedding_model = False
-    return _embedding_model if _embedding_model else None
+import os
+import google.generativeai as genai
 
 
 def cosine_similarity(v1, v2):
@@ -152,19 +140,31 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         repos = list(repos)
 
-        if query and get_embedding_model():
-            query_embedding = get_embedding_model().encode(query)
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if query and api_key:
+            genai.configure(api_key=api_key)
+            try:
+                result = genai.embed_content(
+                    model="models/text-embedding-004",
+                    content=query,
+                    task_type="retrieval_query"
+                )
+                query_embedding = result['embedding']
 
-            scored_repos = []
-            for repo in repos:
-                if repo.embedding:
-                    sim = cosine_similarity(query_embedding, np.array(repo.embedding))
-                    scored_repos.append((sim, repo))
-                else:
-                    scored_repos.append((-1.0, repo))
+                scored_repos = []
+                for repo in repos:
+                    if repo.embedding:
+                        sim = cosine_similarity(query_embedding, np.array(repo.embedding))
+                        scored_repos.append((sim, repo))
+                    else:
+                        scored_repos.append((-1.0, repo))
 
-            scored_repos.sort(key=lambda x: x[0], reverse=True)
-            repos = [repo for sim, repo in scored_repos][:limit]
+                scored_repos.sort(key=lambda x: x[0], reverse=True)
+                repos = [repo for sim, repo in scored_repos][:limit]
+            except Exception as e:
+                print(f"Error generating query embedding: {e}")
+                repos.sort(key=lambda x: x.final_score, reverse=True)
+                repos = repos[:limit]
         else:
             repos.sort(key=lambda x: x.final_score, reverse=True)
             repos = repos[:limit]
