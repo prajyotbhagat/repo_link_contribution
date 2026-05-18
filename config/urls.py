@@ -37,4 +37,5 @@ urlpatterns = [
     path('healthz/', healthcheck, name='healthcheck'),
     path('admin/', admin.site.urls),
     path('api/', include('apps.repositories.urls')),
+    path('api/crawler/', include('apps.crawler.urls')),
 ]
