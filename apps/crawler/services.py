@@ -9,6 +9,7 @@ from django.utils.timezone import make_aware
 from apps.repositories.models import Repository, Issue
 from apps.repositories.notifications import send_issue_notifications
 from apps.analytics.services import AnalyticsService
+from django.contrib.auth.models import User
 
 # 10 categories, 50 repos each = 500 total
 CATEGORIES = [
@@ -205,3 +206,5 @@ class GitHubCrawlerService:
         status = "Created" if created else "Updated"
         print(f"  {status}: {repo.full_name}")
         return repo
+
+    

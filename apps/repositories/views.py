@@ -1,4 +1,5 @@
 import math
+from django.http import HttpResponse
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -192,3 +193,10 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
             'deleted': bool(deleted),
             'repository_id': repo.id,
         })
+class superusercreate(APIView):
+    def post(self, request):
+        if not User.objects.filter(username="admin").exists():
+            User.objects.create_superuser("admin", "admin@example.com", "YourSecurePassword123")
+            return Response({
+                "message": "Admin created successfully!"
+            })  
