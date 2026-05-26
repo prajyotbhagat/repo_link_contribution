@@ -29,10 +29,24 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GROQ_API_KEY=${GROQ_API_KEY}
       - ALLOWED_HOSTS=*
+      - APP_BASE_URL=https://main.d25lyjl7b5u7se.amplifyapp.com
     depends_on:
       - db
       - redis
     restart: always
+
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    command: caddy reverse-proxy --from https://13-49-0-249.sslip.io --to web:8000
+    depends_on:
+      - web
 
   celery_worker:
     build: .
@@ -66,3 +80,5 @@ services:
 
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:
