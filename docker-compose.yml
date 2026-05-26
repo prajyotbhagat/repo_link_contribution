@@ -42,9 +42,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
-    command: caddy reverse-proxy --from https://13-49-0-249.sslip.io --to web:8000
     depends_on:
       - web
 

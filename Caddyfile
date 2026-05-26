@@ -1,0 +1,6 @@
+13-49-0-249.sslip.io {
+    reverse_proxy web:8000
+    tls admin@reporadar.local {
+        ca https://acme.zerossl.com/v2/DV90
+    }
+}
