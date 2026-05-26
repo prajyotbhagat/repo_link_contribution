@@ -28,6 +28,7 @@ services:
       - DJANGO_SECRET_KEY=change-this-in-production-very-secret
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - ALLOWED_HOSTS=*
     depends_on:
       - db
       - redis
