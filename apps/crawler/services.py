@@ -94,6 +94,7 @@ class GitHubCrawlerService:
             self._fetch_readme(repo)
             self._fetch_issues(repo)
             self._fetch_contributors_count(repo)
+            self._fetch_good_first_issues_count(repo)
             AnalyticsService.compute_all_scores(repo)
             processed.append(repo)
         return processed
@@ -189,6 +190,21 @@ class GitHubCrawlerService:
             else:
                 repo.contributors_count = len(response.json())
             repo.save()
+
+    def _fetch_good_first_issues_count(self, repo):
+        """Query GitHub for total 'good first issue' labelled open issues."""
+        url = f"{self.BASE_URL}/search/issues"
+        params = {
+            "q": f'repo:{repo.full_name} label:"good first issue" is:open is:issue',
+            "per_page": 1,
+        }
+        response = requests.get(url, headers=self.headers, params=params)
+        if response.status_code == 200:
+            count = response.json().get("total_count", 0)
+            repo.good_first_issues_count = count
+            repo.save(update_fields=["good_first_issues_count"])
+        elif response.status_code == 403:
+            print(f"  ⚠ Rate limited fetching GFI count for {repo.full_name}")
 
     def _save_repository(self, item):
         last_commit_str = item.get("pushed_at") or item.get("updated_at")

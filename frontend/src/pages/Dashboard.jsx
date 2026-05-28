@@ -148,7 +148,7 @@ export default function Dashboard() {
           <div className="filter-row">
             <select value={language} onChange={e => { setLanguage(e.target.value); load(query, e.target.value, sortKey); }}>
               <option value="">All Languages</option>
-              {['Python','JavaScript','TypeScript','Go','Rust','Java','C++','C','Ruby','PHP','Markdown','Shell'].map(l => (
+              {['Python', 'JavaScript', 'TypeScript', 'Go', 'Rust', 'Java', 'C++', 'C', 'Ruby', 'PHP', 'Markdown', 'Shell'].map(l => (
                 <option key={l} value={l}>{l}</option>
               ))}
             </select>

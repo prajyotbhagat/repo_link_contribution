@@ -1,5 +1,10 @@
 // API client with automatic JWT token refresh
-const API_BASE = '/api';
+// In production (Amplify build), VITE_API_URL is injected as the full HTTPS
+// origin (e.g. https://13-48-26-213.sslip.io). For local dev it falls back
+// to the Vite dev-server proxy so no .env change is needed locally.
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 function getTokens() {
   return {

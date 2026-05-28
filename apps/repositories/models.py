@@ -16,6 +16,7 @@ class Repository(models.Model):
     forks = models.IntegerField(default=0)
     open_issues = models.IntegerField(default=0)
     contributors_count = models.IntegerField(default=0)
+    good_first_issues_count = models.IntegerField(default=0)
     activity_score = models.FloatField(default=0)
     beginner_score = models.FloatField(default=0)
     doc_score = models.FloatField(default=0)

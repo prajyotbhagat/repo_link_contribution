@@ -47,17 +47,11 @@ class AnalyticsService:
 
     @staticmethod
     def calculate_beginner_score(repo):
-        total_open = repo.open_issues
-        if total_open == 0:
+        gfi = repo.good_first_issues_count or 0
+        if gfi == 0:
             return 0.0
-        
-        # We need to query issues model for "good first issue"
-        good_first_issues = repo.issues.filter(is_good_first_issue=True).count()
-        
-        ratio = good_first_issues / total_open
-        score = ratio * 1000  # Multiplied because the ratio is usually very small (e.g. 5/500 = 0.01)
-        
-        return min(100.0, score)
+        # Scale: 1 GFI = ~10pts, 10 GFIs = 100pts (capped)
+        return min(100.0, gfi * 10.0)
 
     @staticmethod
     def compute_all_scores(repo):
@@ -68,11 +62,10 @@ class AnalyticsService:
         repo.beginner_score = AnalyticsService.calculate_beginner_score(repo)
         
         repo.final_score = (
-            repo.activity_score * 0.30 +
-            repo.beginner_score * 0.25 +
-            repo.doc_score * 0.20 +
-            repo.popularity_score * 0.15 +
-            repo.maintenance_score * 0.10
+            repo.activity_score    * 0.40 +
+            repo.doc_score         * 0.267 +
+            repo.popularity_score  * 0.20 +
+            repo.maintenance_score * 0.133
         )
         
         # Generate Vector Embedding using Gemini API
