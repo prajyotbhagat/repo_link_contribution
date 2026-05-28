@@ -11,7 +11,7 @@ applications:
 
         build:
           commands:
-            - VITE_API_URL=https://13-48-26-213.sslip.io npm run build
+            - VITE_API_URL=https://34-207-164-200.sslip.io npm run build
 
       artifacts:
         baseDirectory: dist
