@@ -82,13 +82,10 @@ for origin in EXTRA_TRUSTED_ORIGINS:
 # CORS
 # ──────────────────────────────────────────────────────────────────────────────
 
-CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOWED_ORIGINS = [
-    'https://main.d39hn19u7d9xkw.amplifyapp.com',
-]
-
-CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True 
+CORS_ALLOWED_ORIGINS = [ "https://main.d39hn19u7d9xkw.amplifyapp.com", ] 
+CORS_ALLOW_CREDENTIALS = True 
+CSRF_TRUSTED_ORIGINS = [ "https://34-207-164-200.sslip.io", "https://main.d39hn19u7d9xkw.amplifyapp.com", ]
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Database — PostgreSQL
