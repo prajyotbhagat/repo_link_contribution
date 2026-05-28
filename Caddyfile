@@ -2,10 +2,10 @@
 # sslip.io subdomains. Replace the email with yours.
 {
 	acme_ca https://acme.zerossl.com/v2/DV90
-	email   [prajyotbhagat1989@gmail.com]   # ← replace with your real email
+	email   prajyotbhagat1989@gmail.com   # ← replace with your real email
 }
 
-13-48-26-213.sslip.io {
+34-207-164-200.sslip.io {
 	# Reverse-proxy all traffic to the Django/Gunicorn container
 	reverse_proxy web:8000
 
