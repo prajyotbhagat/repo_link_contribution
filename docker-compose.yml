@@ -1,19 +1,45 @@
 version: "3.9"
 
+# ─── Shared config for all Django-based containers ───────────────────────────
+x-django: &django
+  build: .
+  env_file:
+    - .env
+  environment:
+    - DJANGO_SETTINGS_MODULE=config.settings_prod
+    - REDIS_URL=redis://redis:6379/0
+  depends_on:
+    - redis
+  restart: unless-stopped
+
 services:
+  # ─── Redis (Celery broker + cache) ───────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
   # ─── Django / Gunicorn ───────────────────────────────────────────────────────
   web:
-    build: .
+    <<: *django
     command: gunicorn config.wsgi:application -c gunicorn.conf.py
     expose:
       - "8000"
-    env_file:
-      - .env
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings_prod
     volumes:
       - static_volume:/app/staticfiles
-    restart: unless-stopped
+
+  # ─── Celery worker (executes tasks) ──────────────────────────────────────────
+  worker:
+    <<: *django
+    command: celery -A config worker --loglevel=info --pool=solo
+
+  # ─── Celery Beat (schedules the daily crawler) ────────────────────────────────
+  beat:
+    <<: *django
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
   # ─── Caddy reverse proxy (HTTPS via ZeroSSL) ─────────────────────────────────
   caddy:
@@ -34,3 +60,4 @@ volumes:
   static_volume:
   caddy_data:
   caddy_config:
+  redis_data:
