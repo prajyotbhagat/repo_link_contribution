@@ -1,26 +1,26 @@
 version: 1
 
 applications:
-  - frontend:
+  - appRoot: frontend
+
+    frontend:
       phases:
         preBuild:
           commands:
-            - cd frontend
             - npm ci --prefer-offline
 
         build:
           commands:
-            - cd frontend
             - VITE_API_URL=https://13-48-26-213.sslip.io npm run build
 
       artifacts:
-        baseDirectory: frontend/dist
+        baseDirectory: dist
         files:
           - "**/*"
 
       cache:
         paths:
-          - frontend/node_modules/**/*
+          - node_modules/**/*
 
       customHeaders:
         - pattern: "**/*"
