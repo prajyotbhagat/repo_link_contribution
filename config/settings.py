@@ -29,7 +29,12 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-7@@yr%n#jylnk%kv_&3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "34-207-164-200.sslip.io",
+    "localhost",
+    "127.0.0.1",
+    "34.207.164.200",
+]
 
 
 # Application definition
