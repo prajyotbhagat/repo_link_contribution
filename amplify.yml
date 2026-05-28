@@ -1,30 +1,29 @@
 version: 1
 
-# ─── Frontend (React + Vite) ──────────────────────────────────────────────────
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - cd frontend
-        - npm ci --prefer-offline
-    build:
-      commands:
-        - cd frontend
-        # Inject the production HTTPS API base URL at compile time so that
-        # import.meta.env.VITE_API_URL resolves to the Caddy-proxied endpoint.
-        - VITE_API_URL=https://13-48-26-213.sslip.io npm run build
-  artifacts:
-    # Tell Amplify where the compiled assets live (relative to the repo root)
-    baseDirectory: frontend/dist
-    files:
-      - "**/*"
-  cache:
-    paths:
-      - frontend/node_modules/**/*
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - cd frontend
+            - npm ci --prefer-offline
 
-# ─── Amplify rewrites — SPA catch-all ────────────────────────────────────────
-customHeaders:
-  - pattern: "**/*"
-    headers:
-      - key: Cache-Control
-        value: "public, max-age=0, must-revalidate"
+        build:
+          commands:
+            - cd frontend
+            - VITE_API_URL=https://13-48-26-213.sslip.io npm run build
+
+      artifacts:
+        baseDirectory: frontend/dist
+        files:
+          - "**/*"
+
+      cache:
+        paths:
+          - frontend/node_modules/**/*
+
+      customHeaders:
+        - pattern: "**/*"
+          headers:
+            - key: Cache-Control
+              value: "public, max-age=0, must-revalidate"
