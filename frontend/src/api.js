@@ -98,8 +98,8 @@ export async function getMe() {
   try { return await apiFetch('/auth/me/'); } catch { return null; }
 }
 
-export const fetchRepos = (query = '', language = '') =>
-  apiFetch(`/repos/recommendations/?query=${encodeURIComponent(query)}&language=${encodeURIComponent(language)}&limit=50`);
+export const fetchRepos = (query = '', language = '', limit = 200) =>
+  apiFetch(`/repos/recommendations/?query=${encodeURIComponent(query)}&language=${encodeURIComponent(language)}&limit=${limit}`);
 
 export const fetchRepo = (id) => apiFetch(`/repos/${id}/`);
 
