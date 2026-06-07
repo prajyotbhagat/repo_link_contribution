@@ -83,8 +83,9 @@ function RepoCard({ repo, onStar, user }) {
         <span className="tag tag-stars">⭐ {fmt(repo.stars)}</span>
         {repo.contributors_count ? <span className="tag tag-contribs">👥 {fmt(repo.contributors_count)}</span> : null}
         {topics.map(t => <span key={t} className="tag tag-topic">{t}</span>)}
-        <a className="card-link" href={repo.repo_url} target="_blank" rel="noopener noreferrer"
-          onClick={e => e.stopPropagation()}>View →</a>
+        <a className="card-link" onClick={e => { e.stopPropagation(); navigate(`/repo/${repo.id}`); }} style={{ cursor: 'pointer' }}>
+          View →
+        </a>
       </div>
     </div>
   );
