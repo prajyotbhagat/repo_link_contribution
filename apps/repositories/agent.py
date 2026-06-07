@@ -140,6 +140,10 @@ def ingest_repository(repo_url: str, session_id: str) -> tuple[str, str]:
             except Exception:
                 pass 
                 
+    # Cap documents to 250 chunks so it doesn't take forever on a micro EC2 CPU
+    if len(documents) > 250:
+        documents = documents[:250]
+        
     if documents:
         embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
         vectorstore = FAISS.from_documents(documents, embeddings)
