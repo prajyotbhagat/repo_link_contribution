@@ -193,7 +193,7 @@ CELERY_WORKER_POOL = 'solo'
 CELERY_BEAT_SCHEDULE = {
     'crawl-all-categories-daily': {
         'task': 'crawler.run_all_categories',
-        'schedule': crontab(hour=3, minute=15),
+        'schedule': crontab(hour=13, minute=15),
         'kwargs': {'per_category': 50},
     },
 }
