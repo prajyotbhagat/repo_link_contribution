@@ -113,15 +113,22 @@ def ingest_repository(repo_url: str, session_id: str) -> tuple[str, str]:
     if repo_path.exists():
         shutil.rmtree(repo_path)
         
-    git.Repo.clone_from(repo_url, str(repo_path))
+    # Use depth=1 to clone instantly without the entire git history!
+    git.Repo.clone_from(repo_url, str(repo_path), depth=1)
     
     documents = []
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=150)
     
     for root, _, files in os.walk(repo_path):
+        if len(documents) >= 250:
+            break
+            
         if any(ignored in root for ignored in ['.git', '__pycache__', 'node_modules', 'venv', 'env']):
             continue
         for file in files:
+            if len(documents) >= 250:
+                break
+                
             if file.startswith('.') or not file.endswith(('.py', '.js', '.ts', '.md', '.txt', '.html', '.css', '.json', '.rs', '.go', '.java', '.cpp', '.h')):
                 continue
             
@@ -137,12 +144,10 @@ def ingest_repository(repo_url: str, session_id: str) -> tuple[str, str]:
                         page_content=chunk,
                         metadata={"source": os.path.relpath(file_path, repo_path)}
                     ))
+                    if len(documents) >= 250:
+                        break
             except Exception:
-                pass 
-                
-    # Cap documents to 250 chunks so it doesn't take forever on a micro EC2 CPU
-    if len(documents) > 250:
-        documents = documents[:250]
+                pass
         
     if documents:
         embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
