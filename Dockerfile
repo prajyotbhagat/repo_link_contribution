@@ -17,6 +17,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+# Pre-download the FastEmbed model so it doesn't hang on the very first user request
+RUN python -c "from fastembed import TextEmbedding; TextEmbedding('BAAI/bge-small-en-v1.5')"
+
 COPY . .
 
 EXPOSE 8000
