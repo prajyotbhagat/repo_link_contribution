@@ -26,7 +26,7 @@ def search_codebase(query: str, index_path: str) -> str:
     if not index_path or not os.path.exists(index_path):
         return "Error: Codebase index not found."
     
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     try:
         vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
         docs = vectorstore.similarity_search(query, k=5)
@@ -141,7 +141,7 @@ def ingest_repository(repo_url: str, session_id: str) -> tuple[str, str]:
                 pass 
                 
     if documents:
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         vectorstore = FAISS.from_documents(documents, embeddings)
         vectorstore.save_local(str(index_path))
         
