@@ -25,11 +25,12 @@ jobs:
             # Navigate to the project directory
             cd ${{ secrets.PROJECT_PATH }}
             
-            # Pull the latest code from the main branch
-            git pull origin main
+            # Fetch and force reset to perfectly match GitHub (avoids divergent branch errors)
+            git fetch origin main
+            git reset --hard origin/main
             
             # Rebuild and restart the Docker containers in detached mode
-            docker-compose up -d --build
+            docker compose up -d --build
             
             # Run database migrations on the 'web' service
-            docker-compose exec -T web python manage.py migrate
+            docker compose exec -T web python manage.py migrate
