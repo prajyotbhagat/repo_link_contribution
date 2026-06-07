@@ -45,5 +45,4 @@ faiss-cpu
 GitPython
 tiktoken
 langchain-community
-langchain-huggingface
-sentence-transformers
+fastembed

@@ -9,7 +9,7 @@ import operator
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from langgraph.graph import StateGraph, END
 from langchain_groq import ChatGroq
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.tools import tool
@@ -26,7 +26,7 @@ def search_codebase(query: str, index_path: str) -> str:
     if not index_path or not os.path.exists(index_path):
         return "Error: Codebase index not found."
     
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
     try:
         vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
         docs = vectorstore.similarity_search(query, k=5)
@@ -141,7 +141,7 @@ def ingest_repository(repo_url: str, session_id: str) -> tuple[str, str]:
                 pass 
                 
     if documents:
-        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
         vectorstore = FAISS.from_documents(documents, embeddings)
         vectorstore.save_local(str(index_path))
         
