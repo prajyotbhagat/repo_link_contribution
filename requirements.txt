@@ -44,3 +44,4 @@ langchain-google-genai
 faiss-cpu
 GitPython
 tiktoken
+langchain-community
