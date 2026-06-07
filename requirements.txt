@@ -37,12 +37,3 @@ django-cors-headers==4.9.0
 django-redis==6.0.0
 djangorestframework_simplejwt==5.5.1
 redis==7.4.0
-langgraph
-langchain
-langchain-groq
-langchain-google-genai
-faiss-cpu
-GitPython
-tiktoken
-langchain-community
-langchain-google-genai

@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     AuthStatusView, LoginView, LogoutView, RegisterView, RepositoryViewSet, 
-    ChatStartView, ChatMessageView, RepoAgentIngestView, RepoAgentChatView
+    ChatStartView, ChatMessageView
 )
 
 router = DefaultRouter()
@@ -17,8 +17,7 @@ urlpatterns = [
     path('chat/start/', ChatStartView.as_view(), name='chat-start'),
     path('chat/<uuid:session_id>/message/', ChatMessageView.as_view(), name='chat-message'),
     
-    path('repos/<int:pk>/agent/ingest/', RepoAgentIngestView.as_view(), name='agent-ingest'),
-    path('agent/chat/<uuid:session_id>/', RepoAgentChatView.as_view(), name='agent-chat'),
+
     
     path('', include(router.urls)),
 ]

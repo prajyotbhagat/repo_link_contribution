@@ -123,15 +123,3 @@ class ChatMessage(models.Model):
     def __str__(self):
         return f"{self.role} message in {self.session.id}"
 
-
-class RepoAgentSession(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='repo_agent_sessions')
-    repository = models.ForeignKey(Repository, on_delete=models.CASCADE, related_name='agent_sessions')
-    status = models.CharField(max_length=50, default='pending') # pending, indexing, ready, failed
-    repo_path = models.CharField(max_length=500, blank=True, null=True)
-    index_path = models.CharField(max_length=500, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Agent Session for {self.repository.name} by {self.user}"
