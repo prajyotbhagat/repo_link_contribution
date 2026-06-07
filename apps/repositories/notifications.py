@@ -47,12 +47,12 @@ def send_issue_notifications(issue):
                 recipient_list=[watch.user.email],
                 fail_silently=False,
             )
-        except Exception:
-            logger.exception(
-                "Failed to send issue notification for repo=%s issue=%s user=%s",
-                issue.repository_id,
+        except Exception as e:
+            logger.warning(
+                "Failed to send notification to %s for issue=%s: %s",
+                watch.user.email,
                 issue.id,
-                watch.user_id,
+                str(e),
             )
             continue
 

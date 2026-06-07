@@ -187,13 +187,13 @@ CELERY_RESULT_BACKEND = os.getenv(
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = TIME_ZONE
+CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_WORKER_POOL = 'solo'
 
 CELERY_BEAT_SCHEDULE = {
     'crawl-all-categories-daily': {
         'task': 'crawler.run_all_categories',
-        'schedule': crontab(hour=3, minute=0),
+        'schedule': crontab(hour=3, minute=15),
         'kwargs': {'per_category': 50},
     },
 }

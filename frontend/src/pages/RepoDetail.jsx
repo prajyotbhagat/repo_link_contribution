@@ -4,6 +4,7 @@ import { fetchRepo, fetchRecentIssues, starRepo, unstarRepo } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import AuthPanel from '../components/AuthPanel';
 import ChatDrawer from '../components/ChatDrawer';
+import RepoAgentDrawer from '../components/RepoAgentDrawer';
 
 function fmt(n) { return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n ?? 0); }
 
@@ -23,6 +24,7 @@ export default function RepoDetail() {
   const [loading, setLoading] = useState(true);
   const [authMsg, setAuthMsg] = useState({ text: '', type: '' });
   const [chatIssue, setChatIssue] = useState(null);
+  const [showAgentDrawer, setShowAgentDrawer] = useState(false);
 
   useEffect(() => {
     Promise.all([fetchRepo(id), fetchRecentIssues(id)])
@@ -42,6 +44,11 @@ export default function RepoDetail() {
   const openChat = (issue) => {
     if (!user) { setAuthMsg({ text: 'Please login first to use the Beginner Guide.', type: 'error' }); return; }
     setChatIssue(issue);
+  };
+
+  const openAgent = () => {
+    if (!user) { setAuthMsg({ text: 'Please login first to talk to the codebase.', type: 'error' }); return; }
+    setShowAgentDrawer(true);
   };
 
   if (loading) return <main className="page"><div className="loader"><div className="loader-spinner" /><p>Loading…</p></div></main>;
@@ -70,8 +77,11 @@ export default function RepoDetail() {
               <button className={`detail-star-btn ${repo.is_starred ? 'active' : ''}`} onClick={toggleStar}>
                 {repo.is_starred ? '★ Watching for issue emails' : '☆ Star for issue emails'}
               </button>
+              <button className="btn btn-sm btn-outline" style={{ marginLeft: '0.5rem' }} onClick={openAgent}>
+                Talk to Codebase 🤖
+              </button>
               <a className="btn btn-sm btn-outline" href={repo.repo_url} target="_blank" rel="noopener noreferrer"
-                style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>Open on GitHub</a>
+                style={{ textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: '0.5rem' }}>Open on GitHub</a>
             </div>
             <div className="meta-row" style={{ marginTop: '1rem' }}>
               {repo.language && <span className="pill">⚙ {repo.language}</span>}
@@ -121,6 +131,7 @@ export default function RepoDetail() {
       </main>
 
       {chatIssue && <ChatDrawer issue={chatIssue} onClose={() => setChatIssue(null)} />}
+      {showAgentDrawer && <RepoAgentDrawer repo={repo} onClose={() => setShowAgentDrawer(false)} />}
     </>
   );
 }

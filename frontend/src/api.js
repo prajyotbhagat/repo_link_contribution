@@ -114,3 +114,12 @@ export const startChat = (issue_id) =>
 
 export const sendChatMessage = (session_id, message) =>
   apiFetch(`/chat/${session_id}/message/`, { method: 'POST', body: JSON.stringify({ message }) });
+
+export const ingestRepoAgent = (repo_id) =>
+  apiFetch(`/repos/${repo_id}/agent/ingest/`, { method: 'POST' });
+
+export const checkAgentStatus = (repo_id, session_id) =>
+  apiFetch(`/repos/${repo_id}/agent/ingest/?session_id=${session_id}`);
+
+export const sendAgentMessage = (session_id, message) =>
+  apiFetch(`/agent/chat/${session_id}/`, { method: 'POST', body: JSON.stringify({ message }) });
