@@ -140,6 +140,10 @@ def ingest_repository(repo_url: str, session_id: str) -> tuple[str, str]:
             except Exception:
                 pass 
                 
+    # Cap documents to avoid Gemini free-tier 429 Rate Limits on large repos
+    if len(documents) > 150:
+        documents = documents[:150]
+        
     if documents:
         embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
         vectorstore = FAISS.from_documents(documents, embeddings)
