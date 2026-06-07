@@ -9,7 +9,7 @@ import operator
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
 from langgraph.graph import StateGraph, END
 from langchain_groq import ChatGroq
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.tools import tool
@@ -26,7 +26,7 @@ def search_codebase(query: str, index_path: str) -> str:
     if not index_path or not os.path.exists(index_path):
         return "Error: Codebase index not found."
     
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     try:
         vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
         docs = vectorstore.similarity_search(query, k=5)
@@ -140,12 +140,8 @@ def ingest_repository(repo_url: str, session_id: str) -> tuple[str, str]:
             except Exception:
                 pass 
                 
-    # Cap documents to avoid Gemini free-tier 429 Rate Limits on large repos
-    if len(documents) > 150:
-        documents = documents[:150]
-        
     if documents:
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         vectorstore = FAISS.from_documents(documents, embeddings)
         vectorstore.save_local(str(index_path))
         
