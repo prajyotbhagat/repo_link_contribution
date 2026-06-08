@@ -1,7 +1,5 @@
 # 📡 RepoRadar
 
-![RepoRadar Banner](https://via.placeholder.com/1000x200.png?text=RepoRadar+-+AI+Powered+Open+Source+Discovery)
-
 **RepoRadar** is an intelligent, AI-powered open-source repository analyzer and contributor assistant. Designed to bridge the gap between complex open-source codebases and junior developers, it helps users discover high-quality repositories, analyze code architecture, and understand GitHub issues through AI-generated learning guides.
 
 ---
