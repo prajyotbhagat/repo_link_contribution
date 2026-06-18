@@ -8,11 +8,24 @@ x-django: &django
   environment:
     - DJANGO_SETTINGS_MODULE=config.settings_prod
     - REDIS_URL=redis://redis:6379/0
+    - DATABASE_URL=postgres://reporadar_user:reporadar_pass@db:5432/reporadar_db
   depends_on:
     - redis
+    - db
   restart: unless-stopped
 
 services:
+  # ─── PostgreSQL Database ─────────────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: reporadar_db
+      POSTGRES_USER: reporadar_user
+      POSTGRES_PASSWORD: reporadar_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   # ─── Redis (Celery broker + cache) ───────────────────────────────────────────
   redis:
     image: redis:7-alpine
@@ -57,6 +70,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  postgres_data:
   static_volume:
   caddy_data:
   caddy_config:
